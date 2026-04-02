@@ -1,0 +1,72 @@
+CREATE DATABASE IF NOT EXISTS autok_bs
+    DEFAULT CHARACTER SET utf8mb4
+    DEFAULT COLLATE utf8mb4_unicode_ci;
+
+USE autok_bs;
+
+CREATE TABLE IF NOT EXISTS project (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    project_name VARCHAR(255) NOT NULL,
+    description TEXT,
+    start_date DATE,
+    end_date DATE,
+    status VARCHAR(50) NOT NULL DEFAULT 'IN_PROGRESS',
+    progress INT NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS team_member (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    project_id BIGINT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    role VARCHAR(100),
+    CONSTRAINT fk_team_member_project FOREIGN KEY (project_id) REFERENCES project(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS work_category (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    project_id BIGINT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    CONSTRAINT fk_work_category_project FOREIGN KEY (project_id) REFERENCES project(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS week_schedule (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    project_id BIGINT NOT NULL,
+    week_number INT NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    goal VARCHAR(500),
+    CONSTRAINT fk_week_schedule_project FOREIGN KEY (project_id) REFERENCES project(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS schedule_task (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    week_schedule_id BIGINT NOT NULL,
+    content VARCHAR(500) NOT NULL,
+    completed BOOLEAN NOT NULL DEFAULT FALSE,
+    day_of_week VARCHAR(20) DEFAULT NULL,
+    CONSTRAINT fk_schedule_task_week FOREIGN KEY (week_schedule_id) REFERENCES week_schedule(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS daily_work (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    project_id BIGINT NOT NULL,
+    user_id BIGINT DEFAULT 1,
+    work_date DATE NOT NULL,
+    content TEXT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_daily_work_project FOREIGN KEY (project_id) REFERENCES project(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS report (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    project_id BIGINT NOT NULL,
+    type VARCHAR(20) NOT NULL,
+    target_date DATE NOT NULL,
+    content TEXT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_report_project FOREIGN KEY (project_id) REFERENCES project(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
